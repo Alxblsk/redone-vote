@@ -1,0 +1,29 @@
+org: alxblsk
+app: aws-redone-vote
+service: aws-redone-vote
+frameworkVersion: '2'
+
+provider:
+  name: aws
+  region: us-west-1
+  memorySize: 128
+  runtime: nodejs12.x
+  lambdaHashingVersion: 20201221
+
+functions:
+  hello:
+    handler: src/handler.hello
+    events:
+      - http:
+          path: api/v1/hello
+          method: get
+          cors:
+            origin: '*'
+
+plugins:
+  - serverless-offline
+  - serverless-dotenv-plugin
+
+custom:
+  serverless-offline:
+    httpPort: 3010
