@@ -21,9 +21,37 @@ functions:
             origin: '*'
 
 plugins:
-  - serverless-offline
   - serverless-dotenv-plugin
+  - serverless-dynamodb-local
+  - serverless-offline
 
 custom:
   serverless-offline:
     httpPort: 3010
+  dynamodb:
+    stages:
+      - dev
+    start:
+      port: 8000
+      inMemory: true
+      heapInitial: 10m
+      heapMax: 20m
+      migrate: true
+      seed: false
+      convertEmptyValues: false
+
+resources:
+  Resources:
+    usersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: votes
+        AttributeDefinitions:
+          - AttributeName: articleId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: articleId
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 10
+          WriteCapacityUnits: 5
