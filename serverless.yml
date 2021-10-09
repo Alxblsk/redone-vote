@@ -11,14 +11,38 @@ provider:
   lambdaHashingVersion: 20201221
 
 functions:
-  hello:
-    handler: src/handler.hello
+  init:
+    handler: src/handler.init
     events:
       - http:
-          path: api/v1/hello
+          path: api/v1/init/{id}
+          method: post
+          cors:
+            origin: '*'
+          request:
+            parameters:
+              paths:
+                id: true
+  vote:
+    handler: src/handler.vote
+    events:
+      - http:
+          path: api/v1/vote
+          method: post
+          cors:
+            origin: '*'
+  list:
+    handler: src/handler.list
+    events:
+      - http:
+          path: api/v1/list/{id}
           method: get
           cors:
             origin: '*'
+          request:
+            parameters:
+              paths:
+                id: true
 
 plugins:
   - serverless-dotenv-plugin
@@ -53,5 +77,5 @@ resources:
           - AttributeName: articleId
             KeyType: HASH
         ProvisionedThroughput:
-          ReadCapacityUnits: 10
-          WriteCapacityUnits: 5
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1

@@ -24,5 +24,8 @@
     "serverless-dotenv-plugin": "^3.0.0",
     "serverless-offline": "^6.5.0",
     "serverless-dynamodb-local": "^0.2.40"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.36.0"
   }
 }
