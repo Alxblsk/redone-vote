@@ -26,6 +26,7 @@
     "serverless-dynamodb-local": "^0.2.40"
   },
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.36.0"
+    "@aws-sdk/client-dynamodb": "^3.36.0",
+    "@aws/dynamodb-auto-marshaller": "^0.7.1"
   }
 }

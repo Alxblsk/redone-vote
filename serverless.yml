@@ -1,7 +1,7 @@
 org: alxblsk
 app: aws-redone-vote
 service: aws-redone-vote
-frameworkVersion: '2'
+frameworkVersion: 2
 
 provider:
   name: aws
@@ -12,10 +12,10 @@ provider:
 
 functions:
   init:
-    handler: src/handler.init
+    handler: src/votes.init
     events:
       - http:
-          path: api/v1/init/{id}
+          path: api/v1/votes/{id}
           method: post
           cors:
             origin: '*'
@@ -24,18 +24,22 @@ functions:
               paths:
                 id: true
   vote:
-    handler: src/handler.vote
+    handler: src/votes.vote
     events:
       - http:
-          path: api/v1/vote
-          method: post
+          path: api/v1/votes/{id}
+          method: patch
           cors:
             origin: '*'
+          request:
+            parameters:
+              paths:
+                id: true
   list:
-    handler: src/handler.list
+    handler: src/votes.list
     events:
       - http:
-          path: api/v1/list/{id}
+          path: api/v1/votes/{id}
           method: get
           cors:
             origin: '*'
