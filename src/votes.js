@@ -2,6 +2,7 @@
 
 const DDB = require('@aws-sdk/client-dynamodb');
 const { Marshaller } = require('@aws/dynamodb-auto-marshaller');
+const TableName = process.env.TABLE_NAME;
 
 const marshaller = new Marshaller();
 
@@ -13,7 +14,7 @@ const CATEGORIES_DEFAULTS = {
 
 const voteInitParams = (articleId) => {
   return {
-    TableName: 'votes',
+    TableName,
     Item: marshaller.marshallItem({articleId, ...CATEGORIES_DEFAULTS}),
     ConditionExpression: 'attribute_not_exists(articleId)'
   };
@@ -21,7 +22,7 @@ const voteInitParams = (articleId) => {
 
 const voteIncrementParams = (articleId, action) => {
   return {
-    TableName: 'votes',
+    TableName,
     UpdateExpression: `SET #action = #action + :action`,
     ExpressionAttributeNames: {"#action": action},
     ExpressionAttributeValues: {":action": {"N":"1"}},
@@ -32,14 +33,14 @@ const voteIncrementParams = (articleId, action) => {
 
 const voteResultParams = (articleId) => {
   return {
-    TableName: 'votes',
+    TableName,
     Key: marshaller.marshallItem({ articleId })
   }
 }
 
 const dbClient = new DDB.DynamoDBClient({ 
-  region: process.env.AWS_REGION,
-  endpoint: process.env.AWS_ENDPOINT
+  region: process.env.AWS_VOTES_REGION,
+  endpoint: process.env.AWS_VOTES_ENDPOINT
 });
 
 /**

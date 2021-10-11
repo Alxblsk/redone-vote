@@ -1,7 +1,7 @@
 org: alxblsk
 app: aws-redone-vote
 service: aws-redone-vote
-frameworkVersion: 2
+frameworkVersion: "2"
 
 provider:
   name: aws
@@ -9,6 +9,18 @@ provider:
   memorySize: 128
   runtime: nodejs12.x
   lambdaHashingVersion: 20201221
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:DescribeTable
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource:
+        - "Fn::GetAtt": [votesTable, Arn]
 
 functions:
   init:
@@ -70,9 +82,11 @@ custom:
 
 resources:
   Resources:
-    usersTable:
+    votesTable:
       Type: AWS::DynamoDB::Table
+      DeletionPolicy: Retain 
       Properties:
+        # TODO: use from env variables
         TableName: votes
         AttributeDefinitions:
           - AttributeName: articleId
@@ -80,6 +94,8 @@ resources:
         KeySchema:
           - AttributeName: articleId
             KeyType: HASH
-        ProvisionedThroughput:
-          ReadCapacityUnits: 1
-          WriteCapacityUnits: 1
+        BillingMode: PAY_PER_REQUEST
+
+package:
+  patterns:
+    - '!.dynamodb/**'
