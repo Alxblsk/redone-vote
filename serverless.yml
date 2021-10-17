@@ -2,6 +2,8 @@ org: alxblsk
 app: aws-redone-vote
 service: aws-redone-vote
 frameworkVersion: "2"
+variablesResolutionMode: 20210326
+useDotenv: true
 
 provider:
   name: aws
@@ -25,47 +27,62 @@ provider:
 functions:
   init:
     handler: src/votes.init
+    provisionedConcurrency: 1
+    environment:
+      TABLE_NAME: ${self:custom.vars.TABLE_NAME}
+      AWS_VOTES_REGION: ${self:custom.vars.AWS_VOTES_REGION, ''}
+      AWS_VOTES_ENDPOINT: ${self:custom.vars.AWS_VOTES_ENDPOINT, ''}
     events:
       - http:
           path: api/v1/votes/{id}
           method: post
           cors:
-            origin: '*'
+            origin: ${self:custom.vars.WEBSITE_ORIGIN}
           request:
             parameters:
               paths:
                 id: true
   vote:
     handler: src/votes.vote
+    provisionedConcurrency: 1
+    environment:
+      TABLE_NAME: ${self:custom.vars.TABLE_NAME}
+      AWS_VOTES_REGION: ${self:custom.vars.AWS_VOTES_REGION, ''}
+      AWS_VOTES_ENDPOINT: ${self:custom.vars.AWS_VOTES_ENDPOINT, ''}
     events:
       - http:
           path: api/v1/votes/{id}
           method: patch
           cors:
-            origin: '*'
+            origin: ${self:custom.vars.WEBSITE_ORIGIN}
           request:
             parameters:
               paths:
                 id: true
   list:
     handler: src/votes.list
+    provisionedConcurrency: 1
+    environment:
+      TABLE_NAME: ${self:custom.vars.TABLE_NAME}
+      AWS_VOTES_REGION: ${self:custom.vars.AWS_VOTES_REGION, ''}
+      AWS_VOTES_ENDPOINT: ${self:custom.vars.AWS_VOTES_ENDPOINT, ''}
     events:
       - http:
           path: api/v1/votes/{id}
           method: get
           cors:
-            origin: '*'
+            origin: ${self:custom.vars.WEBSITE_ORIGIN}
           request:
             parameters:
               paths:
                 id: true
 
 plugins:
-  - serverless-dotenv-plugin
   - serverless-dynamodb-local
   - serverless-offline
 
 custom:
+  vars: ${file(configs.js)}
   serverless-offline:
     httpPort: 3010
   dynamodb:
@@ -86,8 +103,7 @@ resources:
       Type: AWS::DynamoDB::Table
       DeletionPolicy: Retain 
       Properties:
-        # TODO: use from env variables
-        TableName: votes
+        TableName: ${self:custom.vars.TABLE_NAME}
         AttributeDefinitions:
           - AttributeName: articleId
             AttributeType: S

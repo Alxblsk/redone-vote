@@ -38,10 +38,12 @@ const voteResultParams = (articleId) => {
   }
 }
 
-const dbClient = new DDB.DynamoDBClient({ 
-  region: process.env.AWS_VOTES_REGION,
-  endpoint: process.env.AWS_VOTES_ENDPOINT
-});
+const dbParams = { 
+  region: process.env.AWS_VOTES_REGION || undefined,
+  endpoint: process.env.AWS_VOTES_ENDPOINT || undefined
+}
+
+const dbClient = new DDB.DynamoDBClient(dbParams);
 
 /**
  * Initializes `votes` object for a specific article if that doesn't exist

@@ -21,14 +21,14 @@
   },
   "homepage": "https://github.com/Alxblsk/redone-vote#readme",
   "devDependencies": {
+    "dotenv": "^10.0.0",
     "prettier": "^2.2.1",
-    "serverless": "^2.0.0",
-    "serverless-dotenv-plugin": "^3.0.0",
-    "serverless-offline": "^6.5.0",
-    "serverless-dynamodb-local": "^0.2.40"
+    "serverless": "^2.63.0",
+    "serverless-dynamodb-local": "^0.2.40",
+    "serverless-offline": "^6.5.0"
   },
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.36.0",
+    "@aws-sdk/client-dynamodb": "^3.37.0",
     "@aws/dynamodb-auto-marshaller": "^0.7.1"
   }
 }
