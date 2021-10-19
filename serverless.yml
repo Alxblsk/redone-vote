@@ -25,6 +25,11 @@ provider:
         - "Fn::GetAtt": [votesTable, Arn]
 
 functions:
+  auth:
+    environment:
+      AUTH_USERNAME: ${self:custom.vars.AUTH_USERNAME}
+      AUTH_PASSWORD: ${self:custom.vars.AUTH_PASSWORD}
+    handler: src/auth.handler
   init:
     handler: src/votes.init
     provisionedConcurrency: 1
@@ -42,6 +47,11 @@ functions:
             parameters:
               paths:
                 id: true
+          authorizer:
+            name: auth
+            resultTtlInSeconds: 0
+            identitySource: method.request.header.Authorization
+            type: request
   vote:
     handler: src/votes.vote
     provisionedConcurrency: 1
@@ -59,6 +69,11 @@ functions:
             parameters:
               paths:
                 id: true
+          authorizer:
+            name: auth
+            resultTtlInSeconds: 0
+            identitySource: method.request.header.Authorization
+            type: request
   list:
     handler: src/votes.list
     provisionedConcurrency: 1
@@ -76,6 +91,11 @@ functions:
             parameters:
               paths:
                 id: true
+          authorizer:
+            name: auth
+            resultTtlInSeconds: 0
+            identitySource: method.request.header.Authorization
+            type: request
 
 plugins:
   - serverless-dynamodb-local
@@ -111,6 +131,15 @@ resources:
           - AttributeName: articleId
             KeyType: HASH
         BillingMode: PAY_PER_REQUEST
+    GatewayResponse:
+      Type: AWS::ApiGateway::GatewayResponse
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.WWW-Authenticate: "'Basic'"
+        ResponseType: UNAUTHORIZED
+        RestApiId:
+          Ref: ApiGatewayRestApi
+        StatusCode: '401'
 
 package:
   patterns:
