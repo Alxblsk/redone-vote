@@ -27,8 +27,8 @@ provider:
 functions:
   auth:
     environment:
-      AUTH_USERNAME: ${self:custom.vars.AUTH_USERNAME}
-      AUTH_PASSWORD: ${self:custom.vars.AUTH_PASSWORD}
+      AUTH_USERNAME: ${self:custom.vars.AUTH_USERNAME, ''}
+      AUTH_PASSWORD: ${self:custom.vars.AUTH_PASSWORD, ''}
     handler: src/auth.handler
   init:
     handler: src/votes.init
