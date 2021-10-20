@@ -1,6 +1,7 @@
 exports.handler = (evt, ctx, callback) => {
-    const authorizationHeader = evt.headers.Authorization;
-  
+    const authKey = Object.keys(evt.headers).find((key) => key.toLowerCase() === 'authorization');
+    const authorizationHeader = evt.headers[authKey];
+
     if (!authorizationHeader) {
       return callback("Unauthorized");
     }

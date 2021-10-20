@@ -30,6 +30,7 @@ functions:
       AUTH_USERNAME: ${self:custom.vars.AUTH_USERNAME, ''}
       AUTH_PASSWORD: ${self:custom.vars.AUTH_PASSWORD, ''}
     handler: src/auth.handler
+
   init:
     handler: src/votes.init
     provisionedConcurrency: 1
@@ -52,6 +53,10 @@ functions:
             resultTtlInSeconds: 0
             identitySource: method.request.header.Authorization
             type: request
+          throttling:
+            maxRequestsPerSecond: 2
+            maxConcurrentRequests: 1
+
   vote:
     handler: src/votes.vote
     provisionedConcurrency: 1
@@ -74,6 +79,10 @@ functions:
             resultTtlInSeconds: 0
             identitySource: method.request.header.Authorization
             type: request
+          throttling:
+            maxRequestsPerSecond: 2
+            maxConcurrentRequests: 1
+
   list:
     handler: src/votes.list
     provisionedConcurrency: 1
@@ -96,9 +105,13 @@ functions:
             resultTtlInSeconds: 0
             identitySource: method.request.header.Authorization
             type: request
+          throttling:
+            maxRequestsPerSecond: 2
+            maxConcurrentRequests: 1
 
 plugins:
   - serverless-dynamodb-local
+  - serverless-api-gateway-throttling
   - serverless-offline
 
 custom:
@@ -116,6 +129,9 @@ custom:
       migrate: true
       seed: false
       convertEmptyValues: false
+  apiGatewayThrottling:
+    maxRequestsPerSecond: 2
+    maxConcurrentRequests: 1
 
 resources:
   Resources:
