@@ -23,14 +23,18 @@ provider:
         - dynamodb:DeleteItem
       Resource:
         - "Fn::GetAtt": [votesTable, Arn]
+  apiGateway: 
+    apiKeys:
+      - value: ${self:custom.vars.API_WRITE_KEY}
+    usagePlan:
+      quota:
+        limit: 1000
+        period: DAY
+      throttle:
+        burstLimit: 1
+        rateLimit: 1
 
 functions:
-  auth:
-    environment:
-      AUTH_USERNAME: ${self:custom.vars.AUTH_USERNAME, ''}
-      AUTH_PASSWORD: ${self:custom.vars.AUTH_PASSWORD, ''}
-    handler: src/auth.handler
-
   init:
     handler: src/votes.init
     provisionedConcurrency: 1
@@ -42,21 +46,14 @@ functions:
       - http:
           path: api/v1/votes/{id}
           method: post
+          private: true
           cors:
             origin: ${self:custom.vars.WEBSITE_ORIGIN}
           request:
             parameters:
               paths:
                 id: true
-          authorizer:
-            name: auth
-            resultTtlInSeconds: 0
-            identitySource: method.request.header.Authorization
-            type: request
-          throttling:
-            maxRequestsPerSecond: 2
-            maxConcurrentRequests: 1
-
+                
   vote:
     handler: src/votes.vote
     provisionedConcurrency: 1
@@ -68,20 +65,13 @@ functions:
       - http:
           path: api/v1/votes/{id}
           method: patch
+          private: true
           cors:
             origin: ${self:custom.vars.WEBSITE_ORIGIN}
           request:
             parameters:
               paths:
                 id: true
-          authorizer:
-            name: auth
-            resultTtlInSeconds: 0
-            identitySource: method.request.header.Authorization
-            type: request
-          throttling:
-            maxRequestsPerSecond: 2
-            maxConcurrentRequests: 1
 
   list:
     handler: src/votes.list
@@ -94,20 +84,13 @@ functions:
       - http:
           path: api/v1/votes/{id}
           method: get
+          private: true
           cors:
             origin: ${self:custom.vars.WEBSITE_ORIGIN}
           request:
             parameters:
               paths:
                 id: true
-          authorizer:
-            name: auth
-            resultTtlInSeconds: 0
-            identitySource: method.request.header.Authorization
-            type: request
-          throttling:
-            maxRequestsPerSecond: 2
-            maxConcurrentRequests: 1
 
 plugins:
   - serverless-dynamodb-local
@@ -118,6 +101,7 @@ custom:
   vars: ${file(configs.js)}
   serverless-offline:
     httpPort: 3010
+    apiKey: ${self:custom.vars.API_WRITE_KEY}
   dynamodb:
     stages:
       - dev
@@ -130,7 +114,7 @@ custom:
       seed: false
       convertEmptyValues: false
   apiGatewayThrottling:
-    maxRequestsPerSecond: 2
+    maxRequestsPerSecond: 1
     maxConcurrentRequests: 1
 
 resources:
@@ -147,15 +131,6 @@ resources:
           - AttributeName: articleId
             KeyType: HASH
         BillingMode: PAY_PER_REQUEST
-    GatewayResponse:
-      Type: AWS::ApiGateway::GatewayResponse
-      Properties:
-        ResponseParameters:
-          gatewayresponse.header.WWW-Authenticate: "'Basic'"
-        ResponseType: UNAUTHORIZED
-        RestApiId:
-          Ref: ApiGatewayRestApi
-        StatusCode: '401'
 
 package:
   patterns:
